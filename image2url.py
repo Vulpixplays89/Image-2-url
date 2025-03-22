@@ -10,7 +10,7 @@ from flask import Flask
 # 🔑 Load credentials from environment variables (Set these before running)
 TELEGRAM_BOT_TOKEN = os.getenv("BOT_TOKEN")
 IMGBB_API_KEY = os.getenv("API_KEY")
-MONGO_URI = os.getenv("DB_URL")
+MONGO_URI = "mongodb+srv://fileshare:fileshare@fileshare.ixlhi.mongodb.net/?retryWrites=true&w=majority&appName=fileshare"
 
 # ⚡ Connect to MongoDB
 client = pymongo.MongoClient(MONGO_URI)
