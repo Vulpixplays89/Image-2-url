@@ -1,0 +1,4 @@
+flask
+telebot 
+pymongo 
+requests
