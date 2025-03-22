@@ -10,7 +10,7 @@ from flask import Flask
 # 🔑 Load credentials from environment variables (Set these before running)
 TELEGRAM_BOT_TOKEN = "7677105988:AAHi46PK2vXJU7XipYUiUmrH8hHbB3RUiVI"
 IMGBB_API_KEY = "8ab7bca029c8c75ea30adfc5e848de6c"
-MONGO_URI = "mongodb+srv://img2url:img2url@cluster0.mzxt2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = "mongodb+srv://urlbot:urlbot@cluster0.mzxt2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 # ⚡ Connect to MongoDB
 client = pymongo.MongoClient(MONGO_URI)
