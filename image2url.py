@@ -10,7 +10,7 @@ from flask import Flask
 # 🔑 Load credentials from environment variables (Set these before running)
 TELEGRAM_BOT_TOKEN = os.getenv("BOT_TOKEN")
 IMGBB_API_KEY = os.getenv("API_KEY")
-MONGO_URI = "mongodb+srv://fileshare:fileshare@fileshare.ixlhi.mongodb.net/?retryWrites=true&w=majority&appName=fileshare"
+MONGO_URI = os.getenv("DB_URL")
 
 # ⚡ Connect to MongoDB
 client = pymongo.MongoClient(MONGO_URI)
@@ -37,12 +37,11 @@ def keep_alive():
 @bot.message_handler(commands=['start'])
 def start(message):
     chat_id = message.chat.id
-    first_name = message.from_user.first_name
 
-    # 📌 Check if user is already registered
+    # 📌 Ensure only user ID is saved
     if not users_collection.find_one({"chat_id": chat_id}):
-        users_collection.insert_one({"chat_id": chat_id, "first_name": first_name})
-    
+        users_collection.insert_one({"chat_id": chat_id})  # Only storing chat_id
+
     welcome_text = (
         "👋 **Welcome to Image Uploader Bot!**\n\n"
         "📷 Send me an **image**, and I'll upload it and provide a direct **Shareable link**. 🔗\n\n"
@@ -56,6 +55,7 @@ def start(message):
         InlineKeyboardButton("🛠 Developer", url="https://t.me/botplays90"),
         InlineKeyboardButton("📢 Join Channel", url="https://t.me/join_hyponet")
     )
+
     bot.send_message(chat_id, welcome_text, parse_mode="Markdown", reply_markup=markup)
 
 @bot.message_handler(commands=['users'])
@@ -65,33 +65,42 @@ def list_users(message):
         return
 
     users = users_collection.find()
-    user_list = "\n".join([f"{user['first_name']} ({user['chat_id']})" for user in users])
-    
+    user_list = "\n".join([str(user.get("chat_id", "Unknown")) for user in users])  # Handle missing chat_id
+
     if user_list:
         bot.send_message(ADMIN_ID, f"📋 **Registered Users:**\n{user_list}")
     else:
         bot.send_message(ADMIN_ID, "⚠ No users found.")
+
 
 @bot.message_handler(commands=['broadcast'])
 def broadcast(message):
     if message.chat.id != ADMIN_ID:
         bot.send_message(message.chat.id, "⛔ You are not authorized to use this command.")
         return
-    
-    text = message.text.replace("/broadcast ", "")
-    
+
+    text = message.text.replace("/broadcast", "").strip()
     if not text:
         bot.send_message(ADMIN_ID, "⚠ Please provide a message to broadcast.")
         return
 
     users = users_collection.find()
-    for user in users:
-        try:
-            bot.send_message(user['chat_id'], f"📢 **Broadcast:**\n{text}")
-        except Exception as e:
-            print(f"❌ Failed to send message to {user['chat_id']}: {e}")
+    sent_count = 0
+    failed_count = 0
 
-    bot.send_message(ADMIN_ID, "✅ Broadcast sent successfully.")
+    for user in users:
+        chat_id = user.get("chat_id")  # Ensure chat_id exists
+        if chat_id:
+            try:
+                bot.send_message(chat_id, f"📢 **Broadcast:**\n{text}")
+                sent_count += 1
+            except Exception as e:
+                print(f"❌ Failed to send message to {chat_id}: {e}")
+                failed_count += 1
+
+    bot.send_message(ADMIN_ID, f"✅ Broadcast sent to {sent_count} users. ❌ Failed: {failed_count}.")
+
+
 
 @bot.message_handler(content_types=['photo'])
 def handle_image(message):
