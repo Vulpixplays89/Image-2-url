@@ -8,9 +8,9 @@ from threading import Thread
 from flask import Flask
 
 # 🔑 Load credentials from environment variables (Set these before running)
-TELEGRAM_BOT_TOKEN = os.getenv("BOT_TOKEN")
-IMGBB_API_KEY = os.getenv("API_KEY")
-MONGO_URI = os.getenv("DB_URL")
+TELEGRAM_BOT_TOKEN = "7677105988:AAHi46PK2vXJU7XipYUiUmrH8hHbB3RUiVI"
+IMGBB_API_KEY = "8ab7bca029c8c75ea30adfc5e848de6c"
+MONGO_URI = "mongodb+srv://img2url:img2url@cluster0.mzxt2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 # ⚡ Connect to MongoDB
 client = pymongo.MongoClient(MONGO_URI)
