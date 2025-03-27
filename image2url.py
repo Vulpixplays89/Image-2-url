@@ -146,10 +146,17 @@ def handle_image(message):
 
 keep_alive()
 
-while True:
-    try:
-        print("🚀 Bot is running...")
-        bot.polling(none_stop=True, interval=0.1, timeout=30)
-    except Exception as e:
-        print(f"⚠️ Bot crashed due to: {e}")
-        time.sleep(5)  # Wait 5 seconds before restarting
+import threading
+
+def polling_thread():
+    while True:
+        try:
+            bot.polling(non_stop=True, interval=0, timeout=20)
+        except Exception as e:
+            print(f"Bot polling crashed: {e}")
+            time.sleep(5)  # Avoid immediate retries on crash
+
+# Run polling in a thread
+thread = threading.Thread(target=polling_thread)
+thread.start()
+
